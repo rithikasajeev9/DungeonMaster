@@ -11,7 +11,21 @@ public class DungeonMaster {
         System.out.println("Enter your name, brave adventurer!");
         String name = sc.nextLine().trim();
         name = name.substring(0, 1).toUpperCase() + name.substring(1);
-        Player player = new Player(name);
+
+        String playerClass = "";
+        while (true) {
+            System.out.println("Choose your class: ( Warrior / Mage / Rogue )");
+            playerClass = sc.nextLine().trim().toLowerCase();
+            if(playerClass.equals("warrior") || playerClass.equals("mage") || playerClass.equals("rogue")){
+                break;
+            }else{
+                System.out.println("Inavlid class. Please choose Warrior, Mage, or Rogue");
+            }
+        }
+
+        Player player = new Player(name,playerClass);
+        System.out.println("Welcome, " + name + " the " + playerClass.substring(0, 1).toUpperCase() + playerClass.substring(1) + "!");
+
 
         boolean keepPlaying = true;
 
@@ -67,8 +81,13 @@ public class DungeonMaster {
         if (choice2 == 1) {
             if (random.nextBoolean()) {
                 System.out.println("You bravely fight and defeat the " + enemy + "! 🏆");
+
+                if(random.nextInt(100)<30){
+                    int healAmount = 20 + random.nextInt(21);
+                    player.gainHealth(healAmount);
+                }
             } else {
-                int damage = 30 + random.nextInt(21); // 30 to 50
+                int damage = 30 + random.nextInt(21);
                 player.loseHealth(damage);
                 System.out.println("You took " + damage + " damage!");
                 System.out.println("Remaining health: " + player.health);
@@ -84,10 +103,10 @@ public class DungeonMaster {
             System.out.print("Enter your choice (1-" + maxOption + "): ");
             if (sc.hasNextInt()) {
                 choice = sc.nextInt();
-                sc.nextLine(); // flush buffer
+                sc.nextLine(); 
             } else {
                 System.out.println("Please enter a number.");
-                sc.nextLine(); // clear invalid input
+                sc.nextLine(); 
             }
         }
         return choice;
@@ -96,11 +115,27 @@ public class DungeonMaster {
 
 class Player {
     String name;
+    String playerClass;
     int health;
+    int maxHealth;
 
-    public Player(String name) {
+    public Player(String name,String playerClass) {
         this.name = name;
-        this.health = 100;
+        this.playerClass = playerClass;
+        switch(playerClass.toLowerCase()){
+            case "warrior":
+                this.maxHealth = 120;
+                break;
+            case "mage":
+                this.maxHealth = 80;
+                break;
+            case "rogue":
+                this.maxHealth = 100;
+                break;
+            default:
+                this.maxHealth = 100;
+        } 
+        this.health = this.maxHealth;
     }
 
     public void loseHealth(int damage) {
@@ -112,7 +147,11 @@ class Player {
         return health > 0;
     }
 
-    public void resetHealth() {
-        health = 100;
+    public void gainHealth(int amount){
+        if(health==maxHealth) return;
+        health+=amount;
+        if(health>maxHealth) health = maxHealth;
+        System.out.println("You found a healing potion and regained "+amount+" health!");
+        System.out.println("Current health: "+health);
     }
 }
